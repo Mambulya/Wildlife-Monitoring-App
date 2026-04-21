@@ -3,6 +3,30 @@ import numpy as np
 from ultralytics import YOLO
 
 
+def extract_label(preds: list) -> str:
+    """
+    Extract label from YOLO predictions 
+    in the following format: class_id, x_center, y_center, width, height (not normalized).
+    
+    :param preds: YOLO predictions.
+
+    :returns: a string of labels.
+    """
+    for pred in preds:
+        labels_pred = []
+        for box in pred.boxes:
+            if box is None:
+                continue
+            else:
+                cls_id = box.cls[0] 
+                xywh = box.xywh[0]
+                # confidence = box.conf            
+                label = f"{cls_id} {xywh[0]} {xywh[1]} {xywh[2]} {xywh[3]}"
+                labels_pred.append(label)
+
+    label_file = "\n".join(labels_pred)
+    return label_file
+
 
 def image_process_with_YOLO(img: bytes, model: YOLO) -> bytes:
     """
@@ -26,5 +50,6 @@ def image_process_with_YOLO(img: bytes, model: YOLO) -> bytes:
     success, encoded_bytes = cv2.imencode(ext=".jpg", img=annotation)
     print("SUCCESS:", success)
     if success:
-        return encoded_bytes
+        label_file = extract_label(preds)
+        return encoded_bytes, label_file
     return Exception("Enconding was failed")
