@@ -1,4 +1,6 @@
 import streamlit as st
+import folium
+from streamlit_folium import st_folium
 import requests
 import time
 
@@ -51,15 +53,36 @@ st.set_page_config(layout="wide", page_title="Wild Animals Detection App", page_
 st.image("logo/reserve_log1.jpg", use_container_width=True )
 
 
-st.title("Wildlife Monitoring App")
-st.subheader('Detect wild animals from camera trap photos')
-col1, col2 = st.columns(2)
+st.markdown("<h1 style='text-align: center;'>Wildlife Monitoring App</h1>", unsafe_allow_html=True)
+st.markdown("<h3 style='text-align: center;'>Detect wild animals from camera trap photos</h3>", unsafe_allow_html=True)
 
-st.write("The system can detect popular wild species, which habitat is concentrated in the Volga-Kama Reserve in Tatarstan republic, Russia, "\
-         "such as wild boar, roe deer, moose, badger, fow, silver gull, and etc. \n" \
-         "The detection is based on the YOLOv8 model, which is trained on a custom dataset of camera trap photos from the reserve.\n" \
-         "The app allows you to upload your own photos and get the detected images with bounding boxes and corresponding label files in a zip archive for further monitoring goals."\
-        )
+col1, col2 = st.columns([0.5, 0.4], gap="medium")
+with col1:
+    col1.markdown(
+    """
+    <div style="text-align: justify;">
+        The system can detect popular wild species, whose habitat is concentrated in the Volga-Kama Reserve in Tatarstan republic, Russia, 
+        such as wild boar, roe deer, moose, badger, fox, silver gull, and etc. 
+        The detection is based on the YOLOv8 model, which is trained on a custom dataset of camera trap photos from the reserve. 
+        The app allows you to upload your own photos and get the detected images with bounding boxes and corresponding label files in a zip archive for further monitoring goals.
+        <br><br>
+        As a result, you can get a zip archive with:
+        <ul style="text-align: left;">
+            <li>Detected images with bounding boxes in the <b>images/</b> folder.</li>
+            <li>Corresponding label files in the <b>labels/</b> folder in the format:</li>
+            <code>&lt;class_id&gt; &lt;x_center&gt; &lt;y_center&gt; &lt;width&gt; &lt;height&gt;</code> in YOLO format.
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+    
+with col2:
+    reserve_map = folium.Map(location=[55.678609, 49.220126], zoom_start=9)
+    folium.Marker([55.901026, 48.733690],
+                  popup="Раифский участок", tooltip="Раифский участок").add_to(reserve_map)
+    folium.Marker([55.302510, 49.273132], 
+                  popup="Саралинский участок", tooltip="Саралинский участок").add_to(reserve_map)
+    st_data = st_folium(reserve_map, width=725)
+    
 
 ##### sidebar section #####
 st.sidebar.header("Upload Your Photos")
