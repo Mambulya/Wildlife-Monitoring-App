@@ -7,6 +7,7 @@ import time
 ############## constants ###############
 
 URL_DETECT = "http://127.0.0.1:8000/detect/"
+HEADER_COLOR = "#9FB878"
 
 ########################################
 
@@ -50,39 +51,40 @@ def detect_images(uploaded_files):
 
 ############## UI Layout ##############
 st.set_page_config(layout="wide", page_title="Wild Animals Detection App", page_icon="")
-st.image("logo/reserve_log1.jpg", use_container_width=True )
 
 
-st.markdown("<h1 style='text-align: center;'>Wildlife Monitoring App</h1>", unsafe_allow_html=True)
-st.markdown("<h3 style='text-align: center;'>Detect wild animals from camera trap photos</h3>", unsafe_allow_html=True)
+st.markdown(f"""<h1 style='text-align: left; color: {HEADER_COLOR}; margin-bottom: 20px;'>
+            Мониторинг дикой природы</h1>""", unsafe_allow_html=True)
+col1, col2 = st.columns([0.3, 0.7], gap="medium")
 
-col1, col2 = st.columns([0.5, 0.4], gap="medium")
 with col1:
-    col1.markdown(
-    """
-    <div style="text-align: justify;">
-        The system can detect popular wild species, whose habitat is concentrated in the Volga-Kama Reserve in Tatarstan republic, Russia, 
-        such as wild boar, roe deer, moose, badger, fox, silver gull, and etc. 
-        The detection is based on the YOLOv8 model, which is trained on a custom dataset of camera trap photos from the reserve. 
-        The app allows you to upload your own photos and get the detected images with bounding boxes and corresponding label files in a zip archive for further monitoring goals.
-        <br><br>
-        As a result, you can get a zip archive with:
-        <ul style="text-align: left;">
-            <li>Detected images with bounding boxes in the <b>images/</b> folder.</li>
-            <li>Corresponding label files in the <b>labels/</b> folder in the format:</li>
-            <code>&lt;class_id&gt; &lt;x_center&gt; &lt;y_center&gt; &lt;width&gt; &lt;height&gt;</code> in YOLO format.
-        </ul>
-    </div>
-    """, unsafe_allow_html=True)
-    
-with col2:
-    reserve_map = folium.Map(location=[55.678609, 49.220126], zoom_start=9)
+    reserve_map = folium.Map(location=[55.678609, 49.220126], zoom_start=8)
     folium.Marker([55.901026, 48.733690],
                   popup="Раифский участок", tooltip="Раифский участок").add_to(reserve_map)
     folium.Marker([55.302510, 49.273132], 
                   popup="Саралинский участок", tooltip="Саралинский участок").add_to(reserve_map)
-    st_data = st_folium(reserve_map, width=725)
-    
+    st_data = st_folium(reserve_map, width=400, height=300)
+
+with col2:
+    # st.markdown("<h3 style='text-align: center;'>Detect wild animals from camera trap photos</h3>", unsafe_allow_html=True)
+    st.markdown("#### Обнаружение диких животных по фотоловушкам")
+    col2.markdown("""<div style="text-align: justify;">
+                  Экологический мониторинг считается значимым процессом исследования дикой природы на различных территориях. \
+                  Одним из мест активного применения может являться <strong>Волжско-Камский заповедник</strong>, основанный в республике \
+                  Татарстан 13 апреля 1960 года, является эколого-просветительским, природоохранным и научно-исследовательским учреждением. \
+                  Зона призвана сохранить уникальные природные ландшафты древней долины Волги. Начиная с 2005 года, заповедник входит в систему \
+                  биосферных резерватов ЮНЕСКО. Заповедник находится на территории Республики Татарстан и состоит из двух участков: Раифского  \
+                  (площадь 5921 га) в Зеленодольском районе республики и Саралинского (площадь 5456 га) в Лаишевском районе.
+                  <br>Касаемо флоры и фауны, 90% территорий покрыто лесами. В заповеднике обитает более 50 видов млекопитающих животных: заяц-беляк, \
+                  рысь, лось, желтогорлая мышь, заяц-русак, рыжеватый суслик, полевая мышь и другие. Из насекомоядных часто можно увидеть ежа, \
+                  крота и обыкновенного бурозубка. В то время как в Раифском участке больше таёжных элементов фауны, в Свраловском – лесостепных. </br> \
+                  </div>
+                  """, unsafe_allow_html=True)
+
+st.markdown("---")
+
+### graphs tests ###
+# st.image("/Users/anyayashnova/Documents/obsidian_stuff/диплом/media/for_report_presentation/latency_accuracy_COCO-Object-Detection_mAPat50to95.png", use_container_width=True)  
 
 ##### sidebar section #####
 st.sidebar.header("Upload Your Photos")
