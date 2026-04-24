@@ -3,11 +3,17 @@ import folium
 from streamlit_folium import st_folium
 import requests
 import time
+import io
+import zipfile
+from PIL import Image
 
 ############## constants ###############
 
 URL_DETECT = "http://127.0.0.1:8000/detect/"
 HEADER_COLOR = "#9FB878"
+MAP_WIDTH = 400
+MAP_HEIGHT = 300
+PREVIEW_WIDTH = 700
 
 ########################################
 
@@ -16,6 +22,8 @@ def detect_images(uploaded_files):
     Process uploaded images and send them to the backend API for detection.
 
     :param uploaded_files: List of uploaded image files
+
+    :returns: content of the resulted zip-archive or None in the case of error
     """
     if st.sidebar.button("Submit"):
 
@@ -38,14 +46,45 @@ def detect_images(uploaded_files):
                                    data=response.content, 
                                    file_name="detection.zip", 
                                    mime="application/zip")
+                end_time = time.time()
+                bar.progress(value=100, text=f"Finished in {end_time - start_time:.2f} seconds")
+                status_text.text(f"Finished in {end_time - start_time:.2f} seconds")
+                bar.empty()
+                return response.content
             else:
                 st.sidebar.error(f"Failed to process: status code {response.status_code}")
+                return None
         except requests.exceptions.RequestException as e:
             st.sidebar.error(f"An error occurred: {e}")
 
-        end_time = time.time()
-        bar.progress(value=100, text=f"Finished in {end_time - start_time:.2f} seconds")
+        bar.progress(value=100, text="Not finished")
         bar.empty()
+
+    return None
+
+
+def get_detected_img(zip_content: bytes):
+    """
+    Unpacks the zip file returned by the API and displays the initial and detected images side by side.
+   
+    :param zip_content: The content of the zip file returned by the API, containing detected images and label files.
+
+    :returns: A dictionary with name of image and the detected image data itself
+    """
+    zip_bytes = io.BytesIO(zip_content)
+
+    with zipfile.ZipFile(zip_bytes, 'r') as zip_file:
+        files_list = zip_file.namelist()
+
+        detected_img = dict()
+
+        for file_name in files_list:
+            if file_name.startswith("images/"):
+                file_index = file_name[7:].split(".")[0]
+                detected_img[file_index] = zip_file.read(file_name)
+
+    return detected_img
+
 
 
 
@@ -63,7 +102,7 @@ with col1:
                   popup="Раифский участок", tooltip="Раифский участок").add_to(reserve_map)
     folium.Marker([55.302510, 49.273132], 
                   popup="Саралинский участок", tooltip="Саралинский участок").add_to(reserve_map)
-    st_data = st_folium(reserve_map, width=400, height=300)
+    st_data = st_folium(reserve_map, width=MAP_WIDTH, height=MAP_HEIGHT)
 
 with col2:
     # st.markdown("<h3 style='text-align: center;'>Detect wild animals from camera trap photos</h3>", unsafe_allow_html=True)
@@ -92,12 +131,13 @@ st.sidebar.write("Please, choose photos to detect wild animals")
 
 with st.sidebar.expander("Image Guidelines"):
     st.write("""
-    - MAximum 100 images per upload.
+    - Maximum 100 images per upload
     - Supported formats: PNG, JPG, JPEG
     - The zip archive returned by the API will contain:
-        - Detected images with bounding boxes in the `images/` folder.
-        - Corresponding label files in the `labels/` folder.
-    - Each label file will contain the detected classes and their coordinates in YOLO format.
+        - Detected images with bounding boxes in the `images/` folder
+        - Corresponding label files in the `labels/` folder
+    - For detection YOLO8n model is used
+    - Each label file will contain the detected classes and their coordinates in YOLO format
     """)
 
 uploaded_files = st.sidebar.file_uploader("Upload Files", accept_multiple_files=True, type=["jpg", "jpeg", "png"])
@@ -107,8 +147,30 @@ uploaded_files = st.sidebar.file_uploader("Upload Files", accept_multiple_files=
 
 ############## Main Logic ##############
 if uploaded_files is not None:
-    detect_images(uploaded_files)
+    zip_archive = detect_images(uploaded_files)             # operating and downloading results
+    if zip_archive is not None:
+        detected_images = get_detected_img(zip_archive)
 
+        ##### results preview #####
+        col_preview_1, col_preview_2 = st.columns([0.5, 0.5], gap="xsmall", vertical_alignment="center")
+        col_preview_1.write("Initial Image")
+        col_preview_2.write("Detected Image")
+
+        for file in uploaded_files:
+            file_name = file.name.split(".", 1)[0]
+
+            with col_preview_1:
+                st.image(image=file, width=PREVIEW_WIDTH)
+
+            with col_preview_2:
+                res_img = Image.open(io.BytesIO(detected_images[file_name]))
+                st.image(image = res_img, width=PREVIEW_WIDTH)
+        st.markdown("If you are satisfied with results, you can download it by the __Download zip__ left.")
+        st.write("""
+        The zip archive returned by the API will contain:
+        - Detected images with bounding boxes in the `images/` folder.
+        - Corresponding label files in the `labels/` folder.
+        """)
 else:
     st.info("Please upload images to detect wild animals")
 
