@@ -14,6 +14,11 @@ HEADER_COLOR = "#9FB878"
 MAP_WIDTH = 400
 MAP_HEIGHT = 300
 PREVIEW_WIDTH = 700
+HOME_LOGO_PATH = "logo/paws.png"
+ICON_PATH = "logo/app icon.png"
+
+if "submitted" not in st.session_state:
+    st.session_state.submitted = False
 
 ########################################
 
@@ -25,40 +30,41 @@ def detect_images(uploaded_files):
 
     :returns: content of the resulted zip-archive or None in the case of error
     """
-    if st.sidebar.button("Submit"):
 
-        start_time = time.time()
-        bar = st.sidebar.progress(value=0)
-        status_text = st.sidebar.empty()
+    st.session_state.submitted = True
 
-        status_text.text("Processing images...")
-        bar.progress(value=10)
+    start_time = time.time()
+    bar = st.sidebar.progress(value=0)
+    status_text = st.sidebar.empty()
 
-        all_files = []
-        for file in uploaded_files:
-            file_bytes = file.getvalue()
-            all_files.append(("files", (file.name, file_bytes, file.type)))
-        try:
-            response = requests.post(URL_DETECT, files=all_files, timeout=300)
-            if response.status_code == 200:
-                st.sidebar.success(f"Successfully processed all files!")
-                st.sidebar.download_button(label="Download zip", 
-                                   data=response.content, 
-                                   file_name="detection.zip", 
-                                   mime="application/zip")
-                end_time = time.time()
-                bar.progress(value=100, text=f"Finished in {end_time - start_time:.2f} seconds")
-                status_text.text(f"Finished in {end_time - start_time:.2f} seconds")
-                bar.empty()
-                return response.content
-            else:
-                st.sidebar.error(f"Failed to process: status code {response.status_code}")
-                return None
-        except requests.exceptions.RequestException as e:
-            st.sidebar.error(f"An error occurred: {e}")
+    status_text.text("Processing images...")
+    bar.progress(value=10)
 
-        bar.progress(value=100, text="Not finished")
-        bar.empty()
+    all_files = []
+    for file in uploaded_files:
+        file_bytes = file.getvalue()
+        all_files.append(("files", (file.name, file_bytes, file.type)))
+    try:
+        response = requests.post(URL_DETECT, files=all_files, timeout=300)
+        if response.status_code == 200:
+            st.sidebar.success(f"Successfully processed all files!")
+            st.sidebar.download_button(label="Download zip", 
+                                data=response.content, 
+                                file_name="detection.zip", 
+                                mime="application/zip")
+            end_time = time.time()
+            bar.progress(value=100, text=f"Finished in {end_time - start_time:.2f} seconds")
+            status_text.text(f"Finished in {end_time - start_time:.2f} seconds")
+            bar.empty()
+            return response.content
+        else:
+            st.sidebar.error(f"Failed to process: status code {response.status_code}")
+            return None
+    except requests.exceptions.RequestException as e:
+        st.sidebar.error(f"An error occurred: {e}")
+
+    bar.progress(value=100, text="Not finished")
+    bar.empty()
 
     return None
 
@@ -86,14 +92,28 @@ def get_detected_img(zip_content: bytes):
     return detected_img
 
 
+def show_logo():
+    col_logo1, col_logo2= st.columns([0.5,0.5], vertical_alignment="center")
+    with col_logo1:
+        st.image(f"{HOME_LOGO_PATH}", width=400)
 
+    st.write("""<div style='text-align: center; 
+                            color: #575b5870; 
+                            font-size: 60px;'>
+            <strong>Upload your trap-cameras' photos
+            <br>to detect wild animals</br></strong>
+            </div>
+            """, unsafe_allow_html=True)
+
+    col_logo1, col_logo2= st.columns([0.7,0.3], vertical_alignment="bottom")
+    with col_logo2:
+        st.image(f"{HOME_LOGO_PATH}", width=400)
 
 ############## UI Layout ##############
-st.set_page_config(layout="wide", page_title="Wild Animals Detection App", page_icon="")
-
+st.set_page_config(layout="wide", page_title="Wild Animals Detection App", page_icon=ICON_PATH)
 
 st.markdown(f"""<h1 style='text-align: left; color: {HEADER_COLOR}; margin-bottom: 20px;'>
-            Мониторинг дикой природы</h1>""", unsafe_allow_html=True)
+            Wildlife Monitoring App</h1>""", unsafe_allow_html=True)
 col1, col2 = st.columns([0.3, 0.7], gap="medium")
 
 with col1:
@@ -106,17 +126,17 @@ with col1:
 
 with col2:
     # st.markdown("<h3 style='text-align: center;'>Detect wild animals from camera trap photos</h3>", unsafe_allow_html=True)
-    st.markdown("#### Обнаружение диких животных по фотоловушкам")
+    st.markdown("#### Detect wild animals from Volgo-Kama Nature Reserve")
     col2.markdown("""<div style="text-align: justify;">
-                  Экологический мониторинг считается значимым процессом исследования дикой природы на различных территориях. \
-                  Одним из мест активного применения может являться <strong>Волжско-Камский заповедник</strong>, основанный в республике \
-                  Татарстан 13 апреля 1960 года, является эколого-просветительским, природоохранным и научно-исследовательским учреждением. \
-                  Зона призвана сохранить уникальные природные ландшафты древней долины Волги. Начиная с 2005 года, заповедник входит в систему \
-                  биосферных резерватов ЮНЕСКО. Заповедник находится на территории Республики Татарстан и состоит из двух участков: Раифского  \
-                  (площадь 5921 га) в Зеленодольском районе республики и Саралинского (площадь 5456 га) в Лаишевском районе.
-                  <br>Касаемо флоры и фауны, 90% территорий покрыто лесами. В заповеднике обитает более 50 видов млекопитающих животных: заяц-беляк, \
-                  рысь, лось, желтогорлая мышь, заяц-русак, рыжеватый суслик, полевая мышь и другие. Из насекомоядных часто можно увидеть ежа, \
-                  крота и обыкновенного бурозубка. В то время как в Раифском участке больше таёжных элементов фауны, в Свраловском – лесостепных. </br> \
+                    Environmental monitoring is considered a significant process of wildlife research in various territories. \
+                    One of the places of active use may be <strong>Volzhsko-Kamsky Nature Reserve</strong>, founded in the republic \
+                    Tatarstan was founded on April 13, 1960, and is an ecological, educational, environmental protection, and scientific research institution.  The
+                    zone is designed to preserve the unique natural landscapes of the ancient Volga Valley. Since 2005, the reserve has been part of the \
+                    UNESCO Biosphere Reserves. The reserve is located on the territory of the Republic of Tatarstan and consists of two sections: the Raifa  \
+                  (area 5,921 ha) in Zelenodolsk district of the republic and Saralinsky (area 5,456 ha) in Laishevsky district.
+                    <br>With regard to flora and fauna, 90% of the territories are covered with forests. The reserve is home to more than 50 species of mammals: white hare,
+                    lynx, moose, yellow-throated mouse, hare hare, reddish ground squirrel, field mouse and others. Of the insectivores, you can often see a hedgehog, \
+                    the mole and the common shrew. While there are more taiga fauna elements in the Raifa area, there are more forest–steppe elements in the Svralovsky area.
                   </div>
                   """, unsafe_allow_html=True)
 
@@ -146,33 +166,39 @@ uploaded_files = st.sidebar.file_uploader("Upload Files", accept_multiple_files=
 
 
 ############## Main Logic ##############
-if uploaded_files is not None:
-    zip_archive = detect_images(uploaded_files)             # operating and downloading results
-    if zip_archive is not None:
-        detected_images = get_detected_img(zip_archive)
+if len(uploaded_files) != 0:
 
-        ##### results preview #####
-        col_preview_1, col_preview_2 = st.columns([0.5, 0.5], gap="xsmall", vertical_alignment="center")
-        col_preview_1.write("Initial Image")
-        col_preview_2.write("Detected Image")
+    if st.sidebar.button("Submit"):
+        st.session_state.submitted = True
 
-        for file in uploaded_files:
-            file_name = file.name.split(".", 1)[0]
+        zip_archive = detect_images(uploaded_files)             # operating and downloading results
+        if zip_archive is not None:
+            detected_images = get_detected_img(zip_archive)
 
-            with col_preview_1:
-                st.image(image=file, width=PREVIEW_WIDTH)
+            ##### results preview #####
+            col_preview_1, col_preview_2 = st.columns([0.5, 0.5], gap="xsmall", vertical_alignment="center")
+            col_preview_1.write("Initial Image")
+            col_preview_2.write("Detected Image")
 
-            with col_preview_2:
-                res_img = Image.open(io.BytesIO(detected_images[file_name]))
-                st.image(image = res_img, width=PREVIEW_WIDTH)
-        st.markdown("If you are satisfied with results, you can download it by the __Download zip__ left.")
-        st.write("""
-        The zip archive returned by the API will contain:
-        - Detected images with bounding boxes in the `images/` folder.
-        - Corresponding label files in the `labels/` folder.
-        """)
+            for file in uploaded_files:
+                file_name = file.name.split(".", 1)[0]
+
+                with col_preview_1:
+                    st.image(image=file, width=PREVIEW_WIDTH)
+
+                with col_preview_2:
+                    res_img = Image.open(io.BytesIO(detected_images[file_name]))
+                    st.image(image = res_img, width=PREVIEW_WIDTH)
+            st.markdown("If you are satisfied with results, you can download it by the __Download zip__ left.")
+            st.write("""
+            The zip archive returned by the API will contain:
+            - Detected images with bounding boxes in the `images/` folder.
+            - Corresponding label files in the `labels/` folder.
+            """)
+    else:
+        show_logo()
 else:
-    st.info("Please upload images to detect wild animals")
+    show_logo()
 
 
 ########## running #################
