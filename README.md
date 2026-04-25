@@ -3,7 +3,9 @@
 
 [UI and functuality demonstartion]([https://youtu.be/GabSZAy4A0M](https://youtu.be/G9Y4-bstAoM))
 
-# Deploying and running
+# 2 Deploying and running
 To test the app, please, run the Docker Container Composition, described in `Dockerfile` and `docker-compose.yml`:
-    $ docker-compose up $
+```console $ docker-compose up
+```
+# 3 Access
 After that the service will be hosted on [localhost:8501](http://localhost:8501/)
