@@ -5,5 +5,5 @@
 
 # Deploying and running
 To test the app, please, run the Docker Container Composition, described in `Dockerfile` and `docker-compose.yml`:
-    $ docker-compose up
+    $ docker-compose up $
 After that the service will be hosted on [localhost:8501](http://localhost:8501/)
