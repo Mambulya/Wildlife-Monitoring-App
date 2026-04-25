@@ -1,0 +1,10 @@
+badger
+bear
+boar
+fox
+hare
+lynx
+moose
+roe_deer
+silver_gull
+squirrel
