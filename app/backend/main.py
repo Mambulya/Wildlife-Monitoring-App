@@ -1,26 +1,50 @@
 from fastapi import FastAPI, UploadFile, HTTPException, File
 from fastapi.responses import StreamingResponse, HTMLResponse
+import json
+
 from typing import List
+
 import zipfile
-import uvicorn
+import redis
+import hashlib
 import io
 
 from app.backend.model_loader import load_model
 from app.backend.image_processor import image_process_with_YOLO
-from app.backend.classes_loader import load_classes
+from app.backend.classes_loader import load_classes, load_classes_list
 
-# экземпляр приложения
+
+######### App and Database linking #########
+
 app = FastAPI(title="Animals Detection API for Monitoring Wildlife",
               description="Upload photos by camera traps and get YOLO detection results",
               contact={"name": "Anna Yashnova",
                        "url": "https://github.com/Mambulya",
                        "email": "anyashnova@kpfu.ru"})
 
+client = redis.Redis(host="localhost",
+                    # host="redis",      # Docker service name
+                     port=6379, 
+                     db=0
+                     )
 
-# load model once ar startup
+if client.ping() == False:
+     raise ConnectionError("Radis Cache Database is not connected. Please, run Redis before by 'redis-server'")
+
+###########################
+
+
+######## Constants ########
+
 MODEL = load_model()
 CLASSES_STR = load_classes()
+CLASSES_LIST = load_classes_list()
 MODEL_VERSION = "YOLOv8n"
+
+CACHE_SECONDS_LIMIT = 600
+# CACHE_SECONDS_LIMIT = 3600
+
+###########################
 
 @app.get("/", summary="Home page", description="Welcome to the Animals Detection API for Monitoring Wildlife!")
 def home():
@@ -40,10 +64,12 @@ def home():
 
 
 
-@app.post("/detect/")
-async def detect(files: List[UploadFile] = File(...)):
+@app.post("/detect/", summary="Uploading, detecting and caching images", description="Here you can work with input")
+async def detect(files: List[UploadFile] = File(...)) -> StreamingResponse:
     """
-    Take photos from user and detect animals using YOLO model.
+    Take photos from user and detect animals using YOLO model + caches predictions in Redis DataBase 
+            img_{filename}: {'animals': 'int;int;...',
+                            ...}
 
     :param files: Upload images
 
@@ -68,8 +94,25 @@ async def detect(files: List[UploadFile] = File(...)):
                 filename = file.filename
                 if filename.endswith((".png", ".jpg", ".jpeg")):
                     try:
-                        pred_bytes, label_file = image_process_with_YOLO(img=file_bytes, model=MODEL)
                         base_file_name = filename.rsplit(".", 1)[0]
+                        pred_bytes, label_file = image_process_with_YOLO(img=file_bytes, model=MODEL)
+
+                        # кэширование предсказаний модели
+                        file_hash = hashlib.md5(file_bytes).hexdigest()
+                        cached_key = f"img:{file_hash}"
+
+                        if not client.exists(cached_key):
+                             value_info = {'animals': dict()}
+
+                             for pred in label_file.split("\n"):
+                                  if pred:
+                                       animal_name = CLASSES_LIST[int(pred.split()[0])]
+                                       value_info["animals"][animal_name] = value_info["animals"].get(animal_name, 0) + 1
+
+                             client.set(name=cached_key, 
+                                        value=json.dumps(value_info),
+                                        ex=CACHE_SECONDS_LIMIT)
+
                         # не создаются файлы на диске, а собирается архив прямо 
                         # в оперативной памяти, чтобы сразу отправить его клиенту!
         
@@ -88,8 +131,11 @@ async def detect(files: List[UploadFile] = File(...)):
                                      headers={"Content-Disposition": "attachment; filename=detection.zip"})
 
 
+
+
 #if __name__ == "__main__":
     ##### обычный запуск #####
+    # redis-server              
     # fastapi dev main.py
     # иначе 
     # uvicorn main:app --reload

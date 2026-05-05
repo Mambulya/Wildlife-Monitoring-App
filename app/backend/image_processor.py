@@ -18,7 +18,7 @@ def extract_label(preds: list) -> str:
             if box is None:
                 continue
             else:
-                cls_id = box.cls[0] 
+                cls_id = int(box.cls[0])
                 xywh = box.xywh[0]
                 # confidence = box.conf            
                 label = f"{cls_id} {xywh[0]} {xywh[1]} {xywh[2]} {xywh[3]}"
