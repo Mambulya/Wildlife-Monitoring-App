@@ -1,12 +1,12 @@
-# Wildlife Monitoring App
+# Мониторинг дикой природы
 
 
-[UI and functuality demonstartion]([https://youtu.be/GabSZAy4A0M](https://youtu.be/G9Y4-bstAoM))
+Посмотреть на графический интерфейс и функции можно [здесь]([https://youtu.be/GabSZAy4A0M](https://youtu.be/G9Y4-bstAoM))
 
-# 2 Deploying and running
-To test the app, please, run the Docker Container Composition, described in `Dockerfile` and `docker-compose.yml`:
+# 2 Развертываение и запуск
+Чтобы запустить приложение, пожалйуста, запустите маршрутизатор контейнеров, в файлах `Dockerfile` и `docker-compose.yml`:
 ```console $
 docker-compose up
 ```
-# 3 Access
-After that the service will be hosted on [localhost:8501](http://localhost:8501/)
+# 3 Доступ
+После предыдущего шага сервис будет доступен по адресу [localhost:8501](http://localhost:8501/)
