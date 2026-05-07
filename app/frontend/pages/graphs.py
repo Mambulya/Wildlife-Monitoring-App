@@ -1,24 +1,25 @@
 import streamlit as st
-import requests
 
 from main import HEADER_COLOR, ICON_PATH, EMPTY_FOLDER_LOGO
 from cache_loader import CacheLoader
 
 
 def show_empty_logo():
-    col_logo1= st.columns(vertical_alignment="center")
+    col_logo1= st.columns([1], vertical_alignment="center")[0]
     with col_logo1:
-        st.image(f"{EMPTY_FOLDER_LOGO}", width=400)
-
-    col_logo2= st.columns(vertical_alignment="center")
-    with col_logo2:
             st.write("""<div style='text-align: center; 
                             color: #575b5870; 
+                            margin-top: 50px;
+                            margin-bottom: 10px;
                             font-size: 60px;'>
             <strong>There are not any statistics yet.
             <br>Please, upload photos.</br></strong>
             </div>
-            """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)    
+
+    col_logo2, col_logo3, col_logo4= st.columns([0.33, 0.33, 0.33], vertical_alignment="center")
+    with col_logo3:
+        st.image(f"{EMPTY_FOLDER_LOGO}", width=400)
 
 
 ############## UI Layout ##############
@@ -30,7 +31,6 @@ st.markdown(f"""
             There are graphs and diagrams illustrating statistics, which was discovered by cameras photos that have been just uploaded.
             All these diagrams can be helpful for Wildlife Monitoring.</p>
             """, unsafe_allow_html=True)
-
 
 
 ### metrics ###
@@ -66,7 +66,9 @@ if "file_names" in st.session_state:
 
 
     else:
-        show_empty_logo()
+        st.error("Error with connection occured :(")
+else:
+     show_empty_logo()
 
 ######################################
 
