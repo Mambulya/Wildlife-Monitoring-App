@@ -1,10 +1,16 @@
 import streamlit as st
 
 ############## constants ###############
-ICON_PATH = "app/frontend/logo/app icon.png"
 HOME_PAGE_PATH = "pages/home.py"
-# HOME_PAGE_PATH = "app/frontend/pages/home_rus.py"     # rus version
 GRAPHS_PAGE_PATH = "pages/graphs.py"
+# HOME_PAGE_PATH = "app/frontend/pages/home_rus.py"     # rus version
+# URL_DETECT = "http://backend:8000/detect/"
+# URL_STATS = "http://backend:8000/stats/"
+URL_STATS = "http://localhost:8000/stats/"
+URL_DETECT = "http://localhost:8000/detect/"
+HEADER_COLOR = "#9FB878"
+ICON_PATH = "app/frontend/logo/app icon.png"
+EMPTY_FOLDER_LOGO = "/Users/anyayashnova/Downloads/empty__folder.png"
 
 ########################################
 

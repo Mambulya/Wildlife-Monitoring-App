@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, HTTPException, File
 from fastapi.responses import StreamingResponse, HTMLResponse
+from pydantic import BaseModel
 import json
 
 from typing import List
@@ -98,7 +99,7 @@ async def detect(files: List[UploadFile] = File(...)) -> StreamingResponse:
                         pred_bytes, label_file = image_process_with_YOLO(img=file_bytes, model=MODEL)
 
                         # кэширование предсказаний модели
-                        file_hash = hashlib.md5(file_bytes).hexdigest()
+                        file_hash = hashlib.md5(base_file_name.encode()).hexdigest()
                         cached_key = f"img:{file_hash}"
 
                         if not client.exists(cached_key):
@@ -120,7 +121,7 @@ async def detect(files: List[UploadFile] = File(...)) -> StreamingResponse:
                         zip_file.writestr(f"labels/{base_file_name}.txt", label_file)
 
                     except Exception as e:
-                        raise HTTPException(status_code=400, detail=f"Exception during YOLO detection has raised: {str(e)}")
+                        raise HTTPException(status_code=400, detail=f"Exception during YOLO detection or caching has raised: {str(e)}")
                 else:
                     raise HTTPException(status_code=415, detail="Unsupported file type. Please upload an image.")
         
@@ -131,6 +132,47 @@ async def detect(files: List[UploadFile] = File(...)) -> StreamingResponse:
                                      headers={"Content-Disposition": "attachment; filename=detection.zip"})
 
 
+class StatsRequest(BaseModel):
+    file_names: List[str]
+
+
+@app.post("/stats/", summary="Getting cache", description="Getting predictions cache for statistics for session")
+async def get_stats(request: StatsRequest):
+    """
+     Takes predictions for each image from keys.
+
+     :param file_names: files name for which statistics is needed: image_1.jpg
+
+     :returns: dictionary of images and their predictions
+     
+    """
+    all_statistics = list()
+
+    for file_name in request.file_names:
+        base_file_name = file_name.rsplit(".", 1)[0]
+        key = f"img:{hashlib.md5(base_file_name.encode()).hexdigest()}"
+
+        value_json = client.get(key)
+
+        if value_json:
+            try:
+                  data = json.loads(value_json)
+
+            except json.JSONDecodeError:
+                 continue
+            
+            all_statistics.append(data)
+
+    return all_statistics
+        
+
+
+
+
+
+    
+
+     
 
 
 #if __name__ == "__main__":
