@@ -9,4 +9,4 @@ To test the app, please, run the Docker Container Composition, described in `Doc
 docker-compose up
 ```
 # 3 Access
-After that the service will be hosted on [localhost:8501](http://localhost:8501/)
+After that the service will be hosted on [localhost:8502](http://localhost:8502/)
