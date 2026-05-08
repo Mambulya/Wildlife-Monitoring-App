@@ -1,7 +1,12 @@
 import streamlit as st
+from streamlit_echarts import st_echarts
+import matplotlib.colors as mcolors
+import matplotlib.pyplot as plt
 
-from main import HEADER_COLOR, ICON_PATH, EMPTY_FOLDER_LOGO
+from main import HEADER_COLOR, ICON_PATH, EMPTY_FOLDER_LOGO, ICON_TREND_LOGO
 from cache_loader import CacheLoader
+
+FONT_SIZE = 20
 
 
 def show_empty_logo():
@@ -25,12 +30,7 @@ def show_empty_logo():
 ############## UI Layout ##############
 st.set_page_config(layout="wide", page_title="Wild Animals Detection App", page_icon=ICON_PATH)
 st.markdown(f"""<h1 style='text-align: left; color: {HEADER_COLOR}; margin-bottom: 20px;'>
-            Camera Trap Statisitcs</h1>""", unsafe_allow_html=True)
-st.markdown(f"""
-            <p style='text-align: left; font-size: 25px;'>
-            There are graphs and diagrams illustrating statistics, which was discovered by cameras photos that have been just uploaded.
-            All these diagrams can be helpful for Wildlife Monitoring.</p>
-            """, unsafe_allow_html=True)
+            Camera Trap Statistics</h1>""", unsafe_allow_html=True)
 
 
 ### metrics ###
@@ -39,30 +39,177 @@ if "file_names" in st.session_state:
     cache = CacheLoader(st.session_state.file_names) 
 
     if cache.get_status() == 200:
+        st.markdown(f"""
+            <p style='text-align: left; font-size: {FONT_SIZE}px;'>
+            There are graphs and diagrams illustrating statistics, which was discovered by cameras photos that have been just uploaded.
+            All these diagrams can be helpful for Wildlife Monitoring.</p>
+            """, unsafe_allow_html=True)
         all_stats = cache.get_dict()
         unique_species = cache.get_unique_species()
         total_uniq_species_num = cache.get_unique_species_number()
         species_population = cache.get_species_count()
         total_beings = cache.get_total_animals_count()
-        top_species = cache.get_top(top=2)
+
+        if total_uniq_species_num >= 3:
+            top_species = cache.get_top(top=3)
+        else:
+            top_species = cache.get_top(top=total_uniq_species_num)
+
         av_species_population = cache.get_av_species_frequency()
         empty_img_num = cache.get_empty_img()
-        top_communal_species = cache.get_communal_top(3)
 
-        st.write(str(all_stats))
-        st.write(unique_species)
-        st.write(total_uniq_species_num)
-        st.write(species_population)
-        st.write(total_beings)
-        st.write(str(top_species))
-        st.write(av_species_population)
-        st.write(cache.num_img)
-        st.write(empty_img_num)
-        st.write(str(top_communal_species))
+        if total_uniq_species_num >= 3:
+            top_communal_species = cache.get_communal_top(3)
+        else:
+            top_communal_species = cache.get_communal_top(top=total_uniq_species_num)
 
+        all_img_num = cache.num_img
+        empty_img_num = cache.get_empty_img()
+        
+        # st.write(str(all_stats))
+        # st.write(unique_species)
+        # st.write(total_uniq_species_num)
+        # st.write(species_population)
+        # st.write(total_beings)
+        # st.write(str(top_species))
+        # st.write(av_species_population)
+        # st.write(cache.num_img)
+        # st.write(empty_img_num)
+        # st.write(str(top_communal_species))
 
+        # ---- metrics ----
 
-        col1, col2, col3, col4 = st.columns(4)
+        col0, col1, col2, col3, col4, col5 = st.columns([0.05, 0.25, 0.25, 0.25, 0.25, 0.05], vertical_alignment="center")
+
+        if total_beings > 0:
+            with col1: 
+                st.metric(
+                    label="Total number of detected animals",
+                    value=f"{total_beings} beings",
+                    border=False,
+                    height="stretch"
+                )
+            with col2:
+                st.metric(
+                    label=f"__{top_species[0][0].capitalize()}__ beings of them",
+                    value=f"{top_species[0][1]}",
+                    border=True,
+                    delta="Top 1",
+                    delta_color="green",
+                    delta_arrow="off"
+                    )
+            if len(top_species) > 1:
+                with col3:
+                    st.metric(
+                        label=f"__{top_species[1][0].capitalize()}__ beings of them",
+                        value=f"{top_species[1][1]}",
+                        border=True,
+                        delta="Top 2",
+                        delta_color="green",
+                        delta_arrow="off"
+                      )
+                if len(top_species) > 2:
+                    with col4:
+                        st.metric(
+                            label=f"__{top_species[2][0].capitalize()}__ beings of them",
+                            value=f"{top_species[2][1]}",
+                            border=True,
+                            delta="Top 3",
+                            delta_color="green",
+                            delta_arrow="off"
+                        )
+        st.markdown("<p style='margin-bottom: 20px;'> </p>", unsafe_allow_html=True)
+                
+        # ---- animals detection diagrams ----    
+        st.subheader(":material/bar_chart: Species distribution and Social behavior")
+        st.markdown(f"""<p style='text-align: left; font-size: {FONT_SIZE}px; margin-bottom: 20px;'>
+                    There is information about various species distribution per detection as well as species group size distribution
+                    that illustrates whether a distinct species tends to have solitary or social behavior patterns.
+                    </p>
+                    """, unsafe_allow_html=True)
+
+        col6, col7 = st.columns(spec=[0.6, 0.4], vertical_alignment="center")
+
+        with col6:
+            # ---- bar chart for Group Size Distribution ----
+            group_size_opts = {
+                "title": {
+                    "text": "Average individuals per detection", 
+                    "left": "center"
+                          },
+                "legend": {
+                    "bottom": "0", 
+                    "type": "scroll", 
+                    "textStyle": {"fontSize": 10}
+                           },
+                "tooltip": {
+                    "trigger": "axis", 
+                    "axisPointer": {"type": "shadow"},
+                    "formatter": "{b}: on average {c} beings in a photo"
+                            },
+                "grid": {
+                    "left": "3%",
+                    "right": "4%",
+                    "bottom": "15%",
+                    "containLabel": True,
+                            },
+                "xAxis": {
+                    "type":"value",
+                    # "name": "Mean group size",
+                            },
+                "yAxis": {
+                    "type": "category", 
+                    "data": list(av_species_population.keys()),
+                    # "name": "Species",
+                    "axisLabel": {
+                        "fontSize": 16
+                                }
+
+                        },
+                "series": [{"data": list(av_species_population.values()), 
+                            "type":"bar",
+                            "itemStyle": {
+                                "color": HEADER_COLOR
+                            }
+                            }]
+            }
+    
+            st_echarts(options=group_size_opts, height="450px", key="Average individuals per detection")
+
+        with col7:
+            # ---- pie chart for species distribution ----
+            donut_opts = {
+                "color": [mcolors.to_hex(plt.cm.ocean(i / total_uniq_species_num)) for i in range(total_uniq_species_num)],
+                "title": {"text": "Species Distribution", 
+                          "left": "center"},
+                "tooltip": {"trigger": "item", 
+                            "formatter": "{b}: {c} beings ({d}%)"},
+                "series": [
+                    {
+                        "type": "pie",
+                        "radius": ["40%", "70%"],
+                        "avoidLabelOverlap": True,
+                        "itemStyle": {
+                            "borderRadius": 10,
+                            "borderColor": "#fff",
+                            "borderWidth": 2,
+                    },
+                "label": {"show": True, 
+                          "formatter": "{b}: {d}%"},
+                "emphasis": {
+                        "label": {"show": True, "fontSize": "14", "fontWeight": "bold"},
+                        "itemStyle": {
+                            "shadowBlur": 10,
+                            "shadowOffsetX": 0,
+                            "shadowColor": "rgba(0, 0, 0, 0.5)",
+                        },
+                    },
+                "data": [{"value": value, "name": key} for key, value in species_population.items()]
+                    }
+                ],
+            }
+
+            st_echarts(options=donut_opts, height="450px", key="priority_donut")
 
 
     else:

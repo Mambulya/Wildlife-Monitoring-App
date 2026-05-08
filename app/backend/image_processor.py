@@ -18,10 +18,15 @@ def extract_label(preds: list) -> str:
             if box is None:
                 continue
             else:
-                cls_id = int(box.cls[0])
-                xywh = box.xywh[0]
-                # confidence = box.conf            
-                label = f"{cls_id} {xywh[0]} {xywh[1]} {xywh[2]} {xywh[3]}"
+                conf = box.conf[0]
+                if conf >= 0.743:                   # the model is sure enough about the prediction
+                    cls_id = int(box.cls[0])
+                    xywh = box.xywh[0]
+                        
+                    label = f"{cls_id} {xywh[0]} {xywh[1]} {xywh[2]} {xywh[3]} {conf}"
+                else:
+                    label = ""
+                
                 labels_pred.append(label)
 
     label_file = "\n".join(labels_pred)

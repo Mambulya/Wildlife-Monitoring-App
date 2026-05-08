@@ -48,7 +48,7 @@ def detect_images(uploaded_files):
         response = requests.post(URL_DETECT, files=all_files, timeout=300)
         if response.status_code == 200:
             st.sidebar.success(f"Successfully processed all files!")
-            st.sidebar.download_button(label="Download zip", 
+            st.sidebar.download_button(label=":material/download: Download zip", 
                                 data=response.content, 
                                 file_name="detection.zip", 
                                 mime="application/zip")

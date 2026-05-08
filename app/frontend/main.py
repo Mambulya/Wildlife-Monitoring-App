@@ -10,6 +10,7 @@ URL_STATS = "http://localhost:8000/stats/"
 URL_DETECT = "http://localhost:8000/detect/"
 HEADER_COLOR = "#9FB878"
 ICON_PATH = "app/frontend/logo/app icon.png"
+ICON_TREND_LOGO = "app/frontend/logo/trend_logo.png"
 EMPTY_FOLDER_LOGO = "app/frontend/logo/empty_folder.png"
 
 ########################################
@@ -22,11 +23,11 @@ if __name__ == "__main__":
         [
             st.Page(
                 page=HOME_PAGE_PATH,
-                title="Home",
-                icon="📷",
+                title="Home | Upload photos",
+                icon=":material/add:",
                 default=True,
             ),
-            st.Page(page=GRAPHS_PAGE_PATH, title="Camera traps photos graphs", icon="📊"),
+            st.Page(page=GRAPHS_PAGE_PATH, title="Statistical graphs", icon=":material/monitoring:"),
         ]
     )
     pg.run()
