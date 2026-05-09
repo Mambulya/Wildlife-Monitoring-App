@@ -2,6 +2,7 @@ import streamlit as st
 from streamlit_echarts import st_echarts
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from main import HEADER_COLOR, ICON_PATH, EMPTY_FOLDER_LOGO, ICON_TREND_LOGO
 from cache_loader import CacheLoader
@@ -130,8 +131,10 @@ if "file_names" in st.session_state:
 
         col6, col7 = st.columns(spec=[0.6, 0.4], vertical_alignment="center")
 
+
+        # ---- bar chart for Group Size Distribution ----   
         with col6:
-            # ---- bar chart for Group Size Distribution ----
+
             group_size_opts = {
                 "title": {
                     "text": "Average individuals per detection", 
@@ -175,9 +178,10 @@ if "file_names" in st.session_state:
             }
     
             st_echarts(options=group_size_opts, height="450px", key="Average individuals per detection")
-
+        
+        
+        # ---- pie chart for species Distribution ----
         with col7:
-            # ---- pie chart for species distribution ----
             donut_opts = {
                 "color": [mcolors.to_hex(plt.cm.ocean(i / total_uniq_species_num)) for i in range(total_uniq_species_num)],
                 "title": {"text": "Species Distribution", 
@@ -211,6 +215,40 @@ if "file_names" in st.session_state:
 
             st_echarts(options=donut_opts, height="450px", key="priority_donut")
 
+        st.markdown("<p style='margin-bottom: 20px;'> </p>", unsafe_allow_html=True)
+        st.subheader(":material/compare: Empty Photos")
+        st.markdown(f"""<p style='text-align: left; font-size: {FONT_SIZE}px; margin-bottom: 50px;'>
+                    Camera Traps are sometimes falsely triggered. That's why the devices take and save photos that do not illustrate any animals.
+                    There is a comparison of empty photos and photos with detected beings proportions.
+                    </p>
+                    """, unsafe_allow_html=True)
+        
+        col__, col8, col9, col_, col10 = st.columns([0.07, 0.17, 0.17, 0.07, 0.5], vertical_alignment="center", gap="small")
+
+        with col8:
+            st.metric(
+                label="Photos with detected animals",
+                value=f"{((all_img_num - empty_img_num) / all_img_num):,.2f}%",
+                delta=f"{all_img_num - empty_img_num} images",
+                delta_arrow="off",
+                border=True,
+                delta_color="green"
+            )
+
+        with col9:
+            st.metric(
+                label="Photos without detected animals",
+                value=f"{(empty_img_num / all_img_num):,.2f}%",
+                delta=f"{empty_img_num} images",
+                delta_arrow="off",
+                border=True,
+                delta_color="red"
+            )         
+
+        with col10:
+            df_temp = pd.DataFrame({"Label": [""], "Normal images": [all_img_num - empty_img_num], "Empty images": [empty_img_num]})
+            st.bar_chart(data=df_temp, x="Label", y=["Normal images", "Empty images"], x_label="", y_label="Number of photos", stack=False, color=[HEADER_COLOR, "#d75136"]) 
+            del df_temp  
 
     else:
         st.error("Error with connection occured :(")
