@@ -23,14 +23,14 @@ app = FastAPI(title="Animals Detection API for Monitoring Wildlife",
                        "url": "https://github.com/Mambulya",
                        "email": "anyashnova@kpfu.ru"})
 
-client = redis.Redis(host="localhost",
-                    # host="redis",      # Docker service name
+client = redis.Redis(# host="localhost", # local running
+                    host="redis",      # Docker service name
                      port=6379, 
                      db=0
                      )
 
-if client.ping() == False:
-     raise ConnectionError("Radis Cache Database is not connected. Please, run Redis before by 'redis-server'")
+# if client.ping() == False:
+#      raise ConnectionError("Radis Cache Database is not connected. Please, run Redis before by 'redis-server'")
 
 ###########################
 

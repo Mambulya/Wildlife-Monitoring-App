@@ -4,7 +4,7 @@ import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from main import HEADER_COLOR, ICON_PATH, EMPTY_FOLDER_LOGO, ICON_TREND_LOGO
+from main import HEADER_COLOR, ICON_PATH, EMPTY_FOLDER_LOGO, ICON_SIDEBAR_LOGO
 from cache_loader import CacheLoader
 
 FONT_SIZE = 20
@@ -33,6 +33,14 @@ st.set_page_config(layout="wide", page_title="Wild Animals Detection App", page_
 st.markdown(f"""<h1 style='text-align: left; color: {HEADER_COLOR}; margin-bottom: 20px;'>
             Camera Trap Statistics</h1>""", unsafe_allow_html=True)
 
+##### sidebar #####
+st.sidebar.header("Statistics from photos")
+st.sidebar.write("There is an opportunity to get statistics from the uploaded photos using the following diagrams.")
+st.sidebar.image(image=ICON_SIDEBAR_LOGO)
+st.sidebar.write("""<strong><p style='text-align: center;'>
+                 Please, discover, analyse, and save!</p></strong>
+                 """, unsafe_allow_html=True)
+###################
 
 ### metrics ###
 
@@ -122,7 +130,7 @@ if "file_names" in st.session_state:
         st.markdown("<p style='margin-bottom: 20px;'> </p>", unsafe_allow_html=True)
                 
         # ---- animals detection diagrams ----    
-        st.subheader(":material/bar_chart: Species distribution and Social behavior")
+        st.subheader("Species distribution and Social behavior")
         st.markdown(f"""<p style='text-align: left; font-size: {FONT_SIZE}px; margin-bottom: 20px;'>
                     There is information about various species distribution per detection as well as species group size distribution
                     that illustrates whether a distinct species tends to have solitary or social behavior patterns.
@@ -140,6 +148,11 @@ if "file_names" in st.session_state:
                     "text": "Average individuals per detection", 
                     "left": "center"
                           },
+                "toolbox": {
+                    "feature": {
+                        "saveAsImage": {}
+                    }
+                },
                 "legend": {
                     "bottom": "0", 
                     "type": "scroll", 
@@ -186,8 +199,14 @@ if "file_names" in st.session_state:
                 "color": [mcolors.to_hex(plt.cm.ocean(i / total_uniq_species_num)) for i in range(total_uniq_species_num)],
                 "title": {"text": "Species Distribution", 
                           "left": "center"},
+                "toolbox": {
+                    "feature": {
+                        "saveAsImage": {}
+                    }
+                },
                 "tooltip": {"trigger": "item", 
                             "formatter": "{b}: {c} beings ({d}%)"},
+                            
                 "series": [
                     {
                         "type": "pie",
@@ -216,7 +235,7 @@ if "file_names" in st.session_state:
             st_echarts(options=donut_opts, height="450px", key="priority_donut")
 
         st.markdown("<p style='margin-bottom: 20px;'> </p>", unsafe_allow_html=True)
-        st.subheader(":material/compare: Empty Photos")
+        st.subheader("Empty Photos")
         st.markdown(f"""<p style='text-align: left; font-size: {FONT_SIZE}px; margin-bottom: 50px;'>
                     Camera Traps are sometimes falsely triggered. That's why the devices take and save photos that do not illustrate any animals.
                     There is a comparison of empty photos and photos with detected beings proportions.
@@ -228,7 +247,7 @@ if "file_names" in st.session_state:
         with col8:
             st.metric(
                 label="Photos with detected animals",
-                value=f"{((all_img_num - empty_img_num) / all_img_num):,.2f}%",
+                value=f"{((all_img_num - empty_img_num) / all_img_num * 100):,.2f}%",
                 delta=f"{all_img_num - empty_img_num} images",
                 delta_arrow="off",
                 border=True,
@@ -238,7 +257,7 @@ if "file_names" in st.session_state:
         with col9:
             st.metric(
                 label="Photos without detected animals",
-                value=f"{(empty_img_num / all_img_num):,.2f}%",
+                value=f"{(empty_img_num / all_img_num * 100):,.2f}%",
                 delta=f"{empty_img_num} images",
                 delta_arrow="off",
                 border=True,
