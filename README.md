@@ -8,9 +8,9 @@ There is a web-service that offers you to uplpoad phtotos from camera traps and 
 
 # Content
 * [Functuality](#1-functuality)
-* Deploying and running
-* Access
-* Project Architecture
+* [Deploying and running](#2-deploying-and-running)
+* [Access](#3-access)
+* [Project Architecture](#4-project-architecture)
 
 # 1 Functuality
 UI and functuality demonstartion can be seen [here on YouTube](https://youtu.be/frzCHOC5gm4)
