@@ -7,7 +7,7 @@ There is a web-service that offers you to uplpoad phtotos from camera traps and 
 ![demo](https://downloader.disk.yandex.ru/preview/d9c028af8019f8afeb0744634cdd95abc957b14f04311aa0b72f013687d3c685/6a0e7288/u04fKWDQK3lh9RdvvMVxl0EJ-ti_A3RwX9feoKcYccEenYE6o1Ze2atIrYCjCdGq3Hx7NksPpLOTrCjgyJZPRQ%3D%3D?uid=0&filename=%D0%A1%D0%BD%D0%B8%D0%BC%D0%BE%D0%BA%20%D1%8D%D0%BA%D1%80%D0%B0%D0%BD%D0%B0%202026-05-11%20%D0%B2%2001.26.20.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&owner_uid=0&tknv=v3&is_direct_zip_experiment=1&size=2048x2048)
 
 # Content
-* [Functuality](https://github.com/Mambulya/Wildlife-Monitoring-App/edit/main/README.md#1-functuality)
+* [Functuality](#1-functuality)
 * Deploying and running
 * Access
 * Project Architecture
