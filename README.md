@@ -2,9 +2,9 @@
 
 [![My Skills](https://skillicons.dev/icons?i=python,redis,docker,fastapi,pytorch)](https://skillicons.dev)
 
-Веб-сервис, который предлагает вам загружать фотографии с камер-ловушек и автоматически обнаруживать диких животных со следующей статистической информацией на основе поддержки модели YOLO8 nano. Система обучена по десяти подвидам, описывающим Волго-Камский заповедник: рысь, медведь, кабан, белка, чайка, заяц, барсук, косуля, лось.
+Веб-сервис, который предлагает вам загружать фотографии с камер-ловушек и автоматически обнаруживать диких животных со следующей статистической информацией на основе поддержки модели YOLO8 nano. Система обучена по десяти подвидам, описывающим Волго-Камский заповедник: рысь, медведь, кабан, белка, чайка, заяц, барсук, косуля, лось, лисица.
 
-![demo](https://3.downloader.disk.yandex.ru/preview/c593bc523f3dd07856d0bbe97a711d63ead263be7325d59e464fc86bcbcdfbbb/inf/zbqgBam49X6LeCPrwkWEGh3nBZGXrTaeicf8R_5UvaSruybeQ3lN8aq71CyCk-OncPezarO_iSH_jSGuSJtD_Q%3D%3D?uid=743031542&filename=%D0%A1%D0%BD%D0%B8%D0%BC%D0%BE%D0%BA%20%D1%8D%D0%BA%D1%80%D0%B0%D0%BD%D0%B0%202026-05-23%20%D0%B2%2018.39.51.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&owner_uid=743031542&tknv=v3&is_direct_zip_experiment=1&size=2850x1624)
+![demo]([https://disk.yandex.ru/i/bZtE-PyCqp1MpQ](https://downloader.disk.yandex.ru/preview/0d42cf9e137f7067b522d6ac4aa71048a1d4120a89beda27badac87ea5662b75/6a120fc2/zbqgBam49X6LeCPrwkWEGh3nBZGXrTaeicf8R_5UvaSruybeQ3lN8aq71CyCk-OncPezarO_iSH_jSGuSJtD_Q%3D%3D?uid=0&filename=%D0%A1%D0%BD%D0%B8%D0%BC%D0%BE%D0%BA%20%D1%8D%D0%BA%D1%80%D0%B0%D0%BD%D0%B0%202026-05-23%20%D0%B2%2018.39.51.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&owner_uid=0&tknv=v3&is_direct_zip_experiment=1&size=2048x2048))
 
 # Содержание
 * [Функциональность](#1-functuality)
