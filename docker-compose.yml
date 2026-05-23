@@ -1,18 +1,24 @@
-name: wildlife-monitoring-app-rus
+name: wildlife-monitoring-app-final-rus
 
 services:
+
+  redis:
+    image: redis:7.4
+    container_name: redis_container_final_rus
+    ports:
+      - "6379:6379"
   backend:
     build: .
-    container_name: backend_container_rus
+    container_name: backend_container_final_rus
     command: uvicorn app.backend.main:app --reload --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
-
-    
+    depends_on:
+      - redis
   frontend:
     build: .
-    container_name: frontend_container_rus
-    command: streamlit run app/frontend/monitoring_interface_rus.py --server.port 8501 --server.address 0.0.0.0
+    container_name: frontend_container_final_rus
+    command: streamlit run app/frontend/main.py --server.port 8501 --server.address 0.0.0.0
     ports:
       - "8501:8501"
     depends_on:
