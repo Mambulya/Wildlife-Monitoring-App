@@ -4,8 +4,6 @@
 
 There is a web-service that offers you to upload photos from camera traps and automatically detect wild animals with the following statistical information. The system is trained by ten species describing Volgo-Kamsky Reserve: a lynx, bear, boar, fox, kelp gull, hare, badger, row deer, moose, squirrel.
 
-![demo](<img width="1280" height="800" alt="image" src="https://github.com/user-attachments/assets/aa59b355-1117-4fe1-afa4-809ba9266f4d" />)
-
 # Content
 * [Functuality](#1-functuality)
 * [Deploying and running](#2-deploying-and-running)
